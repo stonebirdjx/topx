@@ -4,11 +4,30 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/stonebirdjx/topx/biz/config"
 )
 
+func Init() error {
+	g := config.ReadFromEnv()
+	if err := g.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func main() {
+	hlog.Infof(config.ProgramBless())
+	if err := Init(); err != nil {
+		panic(err.Error())
+	}
+
+	// hertz
 	h := server.Default()
 
 	register(h)
 	h.Spin()
+
+	hlog.Infof(config.Thankyou())
 }
