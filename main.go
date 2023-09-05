@@ -29,5 +29,5 @@ func main() {
 	register(h)
 	h.Spin()
 
-	hlog.Infof(config.Thankyou())
+	// hlog.Infof(config.Thankyou())
 }

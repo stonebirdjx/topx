@@ -4,11 +4,13 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/hertz-contrib/requestid"
 	handler "github.com/stonebirdjx/topx/biz/handler"
 )
 
 // customizeRegister registers customize routers.
 func customizedRegister(r *server.Hertz) {
+	r.Use(requestid.New())
 	r.GET("/ping", handler.Ping)
 
 	// your code ...
