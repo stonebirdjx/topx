@@ -2,7 +2,10 @@ module github.com/stonebirdjx/topx
 
 go 1.18
 
-require github.com/cloudwego/hertz v0.6.8
+require (
+	github.com/cloudwego/hertz v0.6.8
+	github.com/hertz-contrib/requestid v1.1.0
+)
 
 require (
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
@@ -15,7 +18,6 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
-	github.com/hertz-contrib/requestid v1.1.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
 	github.com/tidwall/gjson v1.13.0 // indirect
