@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stonebird-topx
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: stonebird-topx
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: stonebird-topx
+    spec:
+      containers:
+      - args:
+        - /opt/tiger/stonebirdjx/app/topx/output/bootstrap.sh
+        command:
+        - /bin/bash
+        env:
+        - name: MONGODB_URI
+          value: mongodb://root:xxx@mongo.stonebird:27017
+        - name: MONGODB_DB
+          value: iva
+        - name: RATE_LIMIT
+          value: 70
+        - name: BURST
+          value: 5
+        image: stonebird.cargo.io/infcp/topx:9b2eafe9c0be8b0192a39ee3f8ee65b9
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ping
+            port: 6789
+            scheme: HTTP
+          initialDelaySeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: stonebird-topx
+        ports:
+        - containerPort: 6789
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ping
+            port: 8888
+            scheme: HTTP
+          initialDelaySeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "2"
+            memory: 2Gi
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsUser: 1005
+      terminationGracePeriodSeconds: 30

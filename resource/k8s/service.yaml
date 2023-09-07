@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: stonebird-topx
+  namespace: default
+spec:
+  ports:
+  - nodePort: 30001
+    port: 6789
+    protocol: TCP
+    targetPort: 6789
+  selector:
+    app: stonebird-topx
+  type: NodePort

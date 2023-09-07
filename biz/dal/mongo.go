@@ -2,6 +2,10 @@ package dal
 
 import "context"
 
+type MongoManager struct {
+
+}
+
 type MongoOption struct {
 	URI string
 }

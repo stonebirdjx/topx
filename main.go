@@ -24,7 +24,7 @@ func main() {
 	}
 
 	// hertz
-	h := server.Default()
+	h := server.Default(server.WithHostPorts(":6789"))
 
 	register(h)
 	h.Spin()
