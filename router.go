@@ -20,6 +20,6 @@ func customizedRegister(r *server.Hertz) {
 	)
 
 	r.GET("/ping", handler.Ping)
-
+	r.GET("/metrics", handler.Metrics)
 	// your code ...
 }

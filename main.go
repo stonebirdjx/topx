@@ -6,6 +6,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/stonebirdjx/topx/biz/config"
+	"github.com/stonebirdjx/topx/biz/middleware"
+	"golang.org/x/time/rate"
 )
 
 func Init() error {
@@ -13,6 +15,8 @@ func Init() error {
 	if err := g.Validate(); err != nil {
 		return err
 	}
+
+	middleware.NewLimiter(middleware.LimiterOptions{R: rate.Limit(g.RateLimit), B: g.Burst})
 
 	return nil
 }
