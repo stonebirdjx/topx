@@ -17,7 +17,7 @@ type LimiterOptions struct {
 	B int
 }
 
-func NewLimiter(l LimiterOptions) {
+func NewLimiter(ctx context.Context, l LimiterOptions) {
 	limiter = rate.NewLimiter(l.R, l.B)
 }
 

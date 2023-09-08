@@ -3,9 +3,12 @@
 package main
 
 import (
+	"context"
+
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/stonebirdjx/topx/biz/config"
+	"github.com/stonebirdjx/topx/biz/dal"
 	"github.com/stonebirdjx/topx/biz/middleware"
 	"golang.org/x/time/rate"
 )
@@ -16,7 +19,12 @@ func Init() error {
 		return err
 	}
 
-	middleware.NewLimiter(middleware.LimiterOptions{R: rate.Limit(g.RateLimit), B: g.Burst})
+	ctx := context.Background()
+	middleware.NewLimiter(ctx, middleware.LimiterOptions{R: rate.Limit(g.RateLimit), B: g.Burst})
+
+	if err := dal.MongoInit(ctx, dal.MongoOption{URI: g.MongoDBURI, DB: g.MongoDBDB}); err != nil {
+		return err
+	}
 
 	return nil
 }
