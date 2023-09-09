@@ -3,7 +3,8 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Actions](#actions)
-  - [create actions](#create-actions)
+  - [ListActions](#listactions)
+  - [CreateActions](#createactions)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -11,7 +12,39 @@
 
 path路径: /apis/apps/v1/actions
 
-## create actions
+## ListActions
+
+- 请求方式：`GET`  /apis/apps/v1/actions?page_size=1&page_num=1
+
+  - query非必要参数
+
+- Response body
+
+  statusCode: `202`  -> 200 OK
+
+  ```json
+  {
+      "actions": [
+          {
+              "id": "64fc423e1af9f79c2a7d918b",
+              "name": "TestPing",
+              "service_name": "iva",
+              "description": "测试连通性",
+              "is_auth": false,
+              "path": "/ping",
+              "proxy": "http://127.0.0.1:8888",
+              "timeout": 30000,
+              "version": "2023-09-09"
+          }
+      ],
+      "totals": 2
+  }
+  ```
+
+  - totals : 数据库总数
+
+
+## CreateActions
 
 - 请求方式：`POST`  /apis/apps/v1/actions 
 
@@ -19,7 +52,7 @@ path路径: /apis/apps/v1/actions
 
 - Request Body:
 
-  ```bash
+  ```json
   {
       "actions":[
           {
@@ -56,6 +89,4 @@ path路径: /apis/apps/v1/actions
   }
   ```
 
-  ## List Acitons
-
-  请求方式：`GET`  /apis/apps/v1/actions 
+  

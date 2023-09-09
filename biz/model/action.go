@@ -64,7 +64,7 @@ type ListOption struct {
 	PageNum  int64
 }
 
-func ListActions(ctx context.Context, opt ListOption) (*[]Action, error) {
+func ListActions(ctx context.Context, opt ListOption) (*[]Action, int, error) {
 	if opt.PapeSize > 0 {
 		return listActionLimit(ctx, opt)
 	}
@@ -72,23 +72,28 @@ func ListActions(ctx context.Context, opt ListOption) (*[]Action, error) {
 	return listAction(ctx)
 }
 
-func listAction(ctx context.Context) (*[]Action, error) {
+func listAction(ctx context.Context) (*[]Action, int, error) {
 	actions := &[]Action{}
 	filter := bson.M{}
 	cursor, err := dal.TopCol.Find(ctx, filter)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if err := cursor.All(ctx, actions); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return actions, nil
+	return actions, len(*actions), nil
 }
 
-func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, error) {
+func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, int, error) {
 	filter := bson.M{}
+	count, err := dal.TopCol.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	skip := (opt.PageNum - 1) * opt.PapeSize
 	findOpt := &options.FindOptions{
 		Limit: &opt.PapeSize,
@@ -97,14 +102,14 @@ func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, error) {
 
 	cursor, err := dal.TopCol.Find(ctx, filter, findOpt)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	actions := &[]Action{}
 	if err := cursor.All(ctx, actions); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return actions, nil
+	return actions, int(count), nil
 
 }

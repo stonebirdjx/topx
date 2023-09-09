@@ -62,7 +62,7 @@ func ListActions(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	actions, err := model.ListActions(ctx, model.ListOption{
+	actions, total, err := model.ListActions(ctx, model.ListOption{
 		PapeSize: req.PapeSize,
 		PageNum:  req.PageNum,
 	})
@@ -77,7 +77,7 @@ func ListActions(ctx context.Context, c *app.RequestContext) {
 
 	res := &ListActionsRes{
 		Actions: *actions,
-		Totals:  len(*actions),
+		Totals:  total,
 	}
 
 	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
