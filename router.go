@@ -11,7 +11,7 @@ import (
 
 // RESTfulAPi 参考kubernetes: https://kubernetes.io/zh-cn/docs/reference/kubernetes-api/
 const (
-	apiv1 = "/apis/v1"
+	apiv1 = "/apis/apps/v1"
 )
 
 // customizeRegister registers customize routers.
