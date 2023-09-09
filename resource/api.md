@@ -5,6 +5,7 @@
 - [Actions](#actions)
   - [ListActions](#listactions)
   - [CreateActions](#createactions)
+  - [DeleteActions](#deleteactions)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -89,8 +90,8 @@ path路径: /apis/apps/v1/actions
   }
   ```
 
-  ## DeleteActions
-  
+##  DeleteActions
+
   - 请求方式：`POST`  /apis/apps/v1/actions 
   
   - Content-Type：application/json
@@ -112,8 +113,3 @@ path路径: /apis/apps/v1/actions
          "message": "delete success"
      }
      ```
-  
-     
-  
-     
-  
