@@ -89,4 +89,31 @@ path路径: /apis/apps/v1/actions
   }
   ```
 
+  ## DeleteActions
+  
+  - 请求方式：`POST`  /apis/apps/v1/actions 
+  
+  - Content-Type：application/json
+  
+  - Request Body:
+  
+    ```json
+    {
+        "ids":["64fc4afde9f3ad7ec777bf39","64fc4afde9f3ad7ec777bf3b"]
+    }
+    ```
+  
+   - Response body
+  
+     statusCode: `200`  -> 200 OK
+  
+     ```json
+     {
+         "message": "delete success"
+     }
+     ```
+  
+     
+  
+     
   

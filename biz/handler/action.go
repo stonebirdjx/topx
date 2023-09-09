@@ -10,6 +10,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/stonebirdjx/topx/biz/config"
 	"github.com/stonebirdjx/topx/biz/model"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ListActionsReq struct {
@@ -28,7 +29,6 @@ func (l *ListActionsReq) validate() error {
 	}
 
 	return nil
-
 }
 
 type ListActionsRes struct {
@@ -149,9 +149,40 @@ func CreateActions(ctx context.Context, c *app.RequestContext) {
 	sendOk(c, okOption{statusCode: consts.StatusCreated, obj: res})
 }
 
-//
-func DeleteActions(ctx context.Context, c *app.RequestContext) {
+type DeleteActionsReq struct {
+	IDs []primitive.ObjectID `json:"ids"`
+}
 
+type DeleteActionsRes struct {
+	Message string `json:"message"`
+}
+
+// DeleteActions .
+func DeleteActions(ctx context.Context, c *app.RequestContext) {
+	req := &DeleteActionsReq{}
+	if err := c.BindAndValidate(req); err != nil {
+		hlog.CtxErrorf(ctx, "%s DeleteActions BindAndValidate request err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
+
+	if err := model.DeleteByIDs(ctx, req.IDs); err != nil {
+		hlog.CtxErrorf(ctx, "%s DeleteActions delte mongo err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
+
+	res := &DeleteActionsRes{
+		Message: "delete success",
+	}
+
+	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
 }
 
 // GetAction return an acitons.
@@ -163,13 +194,6 @@ func GetAction(ctx context.Context, c *app.RequestContext) {
 
 // UpdateAction  update aciton information.
 func UpdateAction(ctx context.Context, c *app.RequestContext) {
-	c.JSON(consts.StatusOK, utils.H{
-		"message": "pong",
-	})
-}
-
-// DeleteAction delete a aciton.
-func DeleteAction(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, utils.H{
 		"message": "pong",
 	})

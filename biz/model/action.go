@@ -111,5 +111,15 @@ func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, int, error
 	}
 
 	return actions, int(count), nil
+}
 
+// DeleteByID
+func DeleteByIDs(ctx context.Context, ids []primitive.ObjectID) error {
+	filter := bson.M{
+		"_id": bson.M{
+			"$in": ids,
+		},
+	}
+	_, err := dal.TopCol.DeleteMany(ctx, filter)
+	return err
 }
