@@ -6,7 +6,9 @@ import (
 	"net/url"
 
 	"github.com/stonebirdjx/topx/biz/dal"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Action struct {
@@ -54,4 +56,55 @@ func (a Action) InsertOne(ctx context.Context) error {
 	a.ID = primitive.NewObjectID()
 	_, err := dal.TopCol.InsertOne(ctx, a)
 	return err
+}
+
+// ListActions
+type ListOption struct {
+	PapeSize int64
+	PageNum  int64
+}
+
+func ListActions(ctx context.Context, opt ListOption) (*[]Action, error) {
+	if opt.PapeSize > 0 {
+		return listActionLimit(ctx, opt)
+	}
+
+	return listAction(ctx)
+}
+
+func listAction(ctx context.Context) (*[]Action, error) {
+	actions := &[]Action{}
+	filter := bson.M{}
+	cursor, err := dal.TopCol.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := cursor.All(ctx, actions); err != nil {
+		return nil, err
+	}
+
+	return actions, nil
+}
+
+func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, error) {
+	filter := bson.M{}
+	skip := (opt.PageNum - 1) * opt.PapeSize
+	findOpt := &options.FindOptions{
+		Limit: &opt.PapeSize,
+		Skip:  &skip,
+	}
+
+	cursor, err := dal.TopCol.Find(ctx, filter, findOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	actions := &[]Action{}
+	if err := cursor.All(ctx, actions); err != nil {
+		return nil, err
+	}
+
+	return actions, nil
+
 }
