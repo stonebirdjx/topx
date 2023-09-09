@@ -12,12 +12,12 @@ import (
 
 var limiter *rate.Limiter
 
-type LimiterOptions struct {
+type LimiterOption struct {
 	R rate.Limit
 	B int
 }
 
-func NewLimiter(ctx context.Context, l LimiterOptions) {
+func NewLimiter(ctx context.Context, l LimiterOption) {
 	limiter = rate.NewLimiter(l.R, l.B)
 }
 

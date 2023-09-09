@@ -20,7 +20,7 @@ func Init() error {
 	}
 
 	ctx := context.Background()
-	middleware.NewLimiter(ctx, middleware.LimiterOptions{R: rate.Limit(g.RateLimit), B: g.Burst})
+	middleware.NewLimiter(ctx, middleware.LimiterOption{R: rate.Limit(g.RateLimit), B: g.Burst})
 
 	if err := dal.MongoInit(ctx, dal.MongoOption{URI: g.MongoDBURI, DB: g.MongoDBDB}); err != nil {
 		return err

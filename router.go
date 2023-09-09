@@ -34,7 +34,7 @@ func customizedRegister(r *server.Hertz) {
 func apiv1Register(r *server.Hertz) {
 	g := r.Group(apiv1)
 	g.GET("/actions", handler.ListActions)
-	g.POST("/actions", handler.CreateAction)
+	g.POST("/actions", handler.CreateActions)
 	g.GET("/actions/:actionid", handler.GetAction)
 	g.PATCH("/actions/:actionid", handler.UpdateAction)
 	g.PUT("/actions/:actionid", handler.UpdateAction)
