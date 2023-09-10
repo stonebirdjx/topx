@@ -26,7 +26,7 @@ func Init() error {
 		return err
 	}
 
-	return nil
+	return dal.RedisInit(dal.RedisOption{URI: g.RedisURI})
 }
 
 func main() {

@@ -6,6 +6,6 @@ const (
 )
 
 const (
-	defaultRetaLimit float64 = 2
-	defaultBurst     int     = 2
+	defaultRetaLimit float64 = 5
+	defaultBurst     int     = 5
 )

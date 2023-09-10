@@ -1,14 +1,27 @@
 package dal
 
 import (
+	"github.com/go-redis/redis_rate/v10"
 	"github.com/redis/go-redis/v9"
 )
 
-func NewRedisClient() {
-	opt, err := redis.ParseURL("redis://<user>:<pass>@localhost:6379/<db>")
+var (
+	RedisRDB     *redis.Client
+	RedisLimiter *redis_rate.Limiter
+)
+
+type RedisOption struct {
+	URI string // "redis://<user>:<pass>@localhost:6379/<db>"
+}
+
+func RedisInit(opt RedisOption) error {
+	o, err := redis.ParseURL(opt.URI)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	_ = redis.NewClient(opt)
+	RedisRDB = redis.NewClient(o)
+
+	RedisLimiter = redis_rate.NewLimiter(RedisRDB)
+	return nil
 }

@@ -11,7 +11,8 @@ import (
 
 // RESTfulAPi 参考kubernetes: https://kubernetes.io/zh-cn/docs/reference/kubernetes-api/
 const (
-	apiv1 = "/apis/apps/v1"
+	appv1   = "/apis/apps/v1"
+	proxyv1 = "/apis/proxy/v1"
 )
 
 // customizeRegister registers customize routers.
@@ -28,11 +29,18 @@ func customizedRegister(r *server.Hertz) {
 	r.GET("/metrics", handler.Metrics)
 	// your code ...
 
-	apiv1Register(r)
+	appv1Register(r)
+	proxyv1Register(r)
 }
 
-func apiv1Register(r *server.Hertz) {
-	g := r.Group(apiv1)
+func proxyv1Register(r *server.Hertz) {
+	g := r.Group(proxyv1)
+	//	http://ip:port/apis/proxy/v1/iva/2022-05-13/TestPing
+	g.Any("/:serviceName/:version/:actionName", handler.Porxy)
+}
+
+func appv1Register(r *server.Hertz) {
+	g := r.Group(appv1)
 	g.POST("/actions", handler.CreateActions)
 	g.GET("/actions", handler.ListActions)
 	g.DELETE("/actions", handler.DeleteActions)

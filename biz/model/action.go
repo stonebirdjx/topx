@@ -86,6 +86,17 @@ func (a *Action) UpdateAction(ctx context.Context) error {
 	return err
 }
 
+// UpdateAction .
+func (a *Action) FindOne(ctx context.Context) error {
+	fliter := bson.M{
+		"name":         a.Name,
+		"service_name": a.ServiceName,
+		"version":      a.Version,
+	}
+
+	return dal.TopCol.FindOne(ctx, fliter).Decode(a)
+}
+
 // ListActions
 type ListOption struct {
 	PapeSize int64

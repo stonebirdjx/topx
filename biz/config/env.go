@@ -12,6 +12,7 @@ const (
 	MongoDBDBEnv  = "MONGODB_DB"
 	RateLimitEnv  = "RATE_LIMIT"
 	BurstEnv      = "BURST"
+	RedisURIEnv   = "REDIS_URI"
 )
 
 // Global 全局环境变量.
@@ -20,6 +21,7 @@ type Global struct {
 	MongoDBDB  string
 	RateLimit  float64
 	Burst      int
+	RedisURI   string
 }
 
 func ReadFromEnv() *Global {
@@ -38,16 +40,21 @@ func ReadFromEnv() *Global {
 		MongoDBDB:  os.Getenv(MongoDBDBEnv),
 		RateLimit:  ratelimit,
 		Burst:      burst,
+		RedisURI:   os.Getenv(RedisURIEnv),
 	}
 }
 
 func (g *Global) Validate() error {
 	if g.MongoDBURI == "" {
-		return fmt.Errorf("env=%s value can not be nil,may be not set.", MongoDBURIEnv)
+		return fmt.Errorf("env=%s value can not be nil,may be not set", MongoDBURIEnv)
 	}
 
 	if g.MongoDBDB == "" {
-		return fmt.Errorf("env=%s value can not be nil,may be not set.", MongoDBDBEnv)
+		return fmt.Errorf("env=%s value can not be nil,may be not set", MongoDBDBEnv)
+	}
+
+	if g.RedisURI == "" {
+		return fmt.Errorf("env=%s value can not be nil,may be not set", RedisURIEnv)
 	}
 
 	return nil

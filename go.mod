@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/cloudwego/hertz v0.6.8
+	github.com/go-redis/redis_rate/v10 v10.0.1
 	github.com/hertz-contrib/requestid v1.1.0
 	github.com/prometheus/client_golang v1.16.0
 	github.com/redis/go-redis/v9 v9.1.0
@@ -50,8 +51,8 @@ require (
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/sync v0.2.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/text v0.11.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
