@@ -16,6 +16,7 @@ type Action struct {
 	Name        string             `json:"name" bson:"name"`
 	ServiceName string             `json:"service_name" bson:"service_name"`
 	Description string             `json:"description" bson:"description"`
+	RateLimit   float64            `json:"rate_limit" bson:"rate_limit"`
 	IsAuth      bool               `json:"is_auth" bson:"is_auth"`
 	Path        string             `json:"path" bson:"path"`
 	Proxy       string             `json:"proxy" bson:"proxy"`
@@ -23,7 +24,7 @@ type Action struct {
 	Version     string             `json:"version" bson:"version"`
 }
 
-func (a Action) Validate() error {
+func (a *Action) Validate() error {
 	if a.Name == "" {
 		return fmt.Errorf("Action name can not be nil")
 	}
@@ -48,11 +49,19 @@ func (a Action) Validate() error {
 		return fmt.Errorf("Action version can not url special characters")
 	}
 
+	if a.RateLimit < 1 {
+		a.RateLimit = 1
+	}
+
+	if a.Timeout < 1 {
+		a.Timeout = 30000
+
+	}
 	return nil
 }
 
 // InsertOne .
-func (a Action) InsertOne(ctx context.Context) error {
+func (a *Action) InsertOne(ctx context.Context) error {
 	a.ID = primitive.NewObjectID()
 	_, err := dal.TopCol.InsertOne(ctx, a)
 	return err

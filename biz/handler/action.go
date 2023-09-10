@@ -88,7 +88,7 @@ func ListActions(ctx context.Context, c *app.RequestContext) {
 }
 
 type CreateActionsReq struct {
-	Actions []model.Action `json:"actions"`
+	Actions []*model.Action `json:"actions"`
 }
 
 type CreateActionsRes struct {
@@ -147,7 +147,7 @@ func CreateActions(ctx context.Context, c *app.RequestContext) {
 	}
 
 	res := &CreateActionsRes{
-		Message: "creat some new actions success",
+		Message: "creat actions success",
 	}
 
 	sendOk(c, okOption{statusCode: consts.StatusCreated, obj: res})
