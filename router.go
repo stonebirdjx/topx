@@ -39,4 +39,5 @@ func apiv1Register(r *server.Hertz) {
 	g.GET("/actions/:actionid", handler.GetAction)
 	g.PATCH("/actions/:actionid", handler.UpdateAction)
 	g.PUT("/actions/:actionid", handler.UpdateAction)
+	g.DELETE("/actions/:actionid", handler.DeleteAction)
 }

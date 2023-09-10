@@ -58,6 +58,25 @@ func (a Action) InsertOne(ctx context.Context) error {
 	return err
 }
 
+// GetAction .
+func (a *Action) GetAction(ctx context.Context) error {
+	fliter := bson.M{
+		"_id": a.ID,
+	}
+
+	return dal.TopCol.FindOne(ctx, fliter).Decode(a)
+}
+
+// UpdateAction .
+func (a *Action) UpdateAction(ctx context.Context) error {
+	fliter := bson.M{
+		"_id": a.ID,
+	}
+
+	_, err := dal.TopCol.ReplaceOne(ctx, fliter, a)
+	return err
+}
+
 // ListActions
 type ListOption struct {
 	PapeSize int64
@@ -113,7 +132,7 @@ func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, int, error
 	return actions, int(count), nil
 }
 
-// DeleteByID
+// DeleteByIDs
 func DeleteByIDs(ctx context.Context, ids []primitive.ObjectID) error {
 	filter := bson.M{
 		"_id": bson.M{
@@ -121,5 +140,15 @@ func DeleteByIDs(ctx context.Context, ids []primitive.ObjectID) error {
 		},
 	}
 	_, err := dal.TopCol.DeleteMany(ctx, filter)
+	return err
+}
+
+// DeleteByID
+func DeleteByID(ctx context.Context, id primitive.ObjectID) error {
+	filter := bson.M{
+		"_id": id,
+	}
+
+	_, err := dal.TopCol.DeleteOne(ctx, filter)
 	return err
 }

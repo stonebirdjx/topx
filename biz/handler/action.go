@@ -6,11 +6,15 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/stonebirdjx/topx/biz/config"
 	"github.com/stonebirdjx/topx/biz/model"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+const (
+	acitonID = "actionid"
 )
 
 type ListActionsReq struct {
@@ -185,16 +189,145 @@ func DeleteActions(ctx context.Context, c *app.RequestContext) {
 	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
 }
 
-// GetAction return an acitons.
-func GetAction(ctx context.Context, c *app.RequestContext) {
-	c.JSON(consts.StatusOK, utils.H{
-		"message": "pong",
-	})
+type GetActionRes struct {
+	*model.Action
 }
 
-// UpdateAction  update aciton information.
+type GetActionResNoDocuments struct {
+	Message string `json:"message"`
+}
+
+// GetAction return an acitons.
+func GetAction(ctx context.Context, c *app.RequestContext) {
+	acitonID := c.Param(acitonID)
+	id, err := primitive.ObjectIDFromHex(acitonID)
+	if err != nil {
+		hlog.CtxErrorf(ctx, "%s GetAction get objectid err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
+	action := &model.Action{
+		ID: id,
+	}
+
+	err = action.GetAction(ctx)
+	if err != nil {
+		getActionErrHandler(ctx, c, err)
+		return
+	}
+	res := GetActionRes{
+		Action: action,
+	}
+
+	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
+}
+
+func getActionErrHandler(ctx context.Context, c *app.RequestContext, err error) {
+	if err != mongo.ErrNoDocuments {
+		hlog.CtxErrorf(ctx, "%s GetAction query mongo err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
+
+	res := &GetActionResNoDocuments{
+		Message: "the action no document",
+	}
+	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
+}
+
+type UpdateActionReq struct {
+	model.Action
+}
+
+func (u *UpdateActionReq) validate() error {
+	return u.Action.Validate()
+}
+
+type UpdateActionRes struct {
+	Message string `json:"message"`
+}
+
+// UpdateAction update aciton information.
 func UpdateAction(ctx context.Context, c *app.RequestContext) {
-	c.JSON(consts.StatusOK, utils.H{
-		"message": "pong",
-	})
+	acitonID := c.Param(acitonID)
+	id, err := primitive.ObjectIDFromHex(acitonID)
+	if err != nil {
+		hlog.CtxErrorf(ctx, "%s UpdateAction get objectid err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
+
+	req := &UpdateActionReq{}
+	if err := c.BindAndValidate(req); err != nil {
+		hlog.CtxErrorf(ctx, "%s UpdateAction BindAndValidate request err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
+
+	req.ID = id
+
+	if err := req.validate(); err != nil {
+		hlog.CtxErrorf(ctx, "%s UpdateAction update mongo err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
+
+	if err := req.Action.UpdateAction(ctx); err != nil {
+		hlog.CtxErrorf(ctx, "%s UpdateAction update mongo err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
+
+	res := &UpdateActionRes{
+		Message: "update success",
+	}
+
+	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
+}
+
+// DeleteAction.
+func DeleteAction(ctx context.Context, c *app.RequestContext) {
+	acitonID := c.Param(acitonID)
+	id, err := primitive.ObjectIDFromHex(acitonID)
+	if err != nil {
+		hlog.CtxErrorf(ctx, "%s DeleteAction get objectid err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
+
+	if err := model.DeleteByID(ctx, id); err != nil {
+		hlog.CtxErrorf(ctx, "%s DeleteAction delete mongo err=%s",
+			c.Response.Header.Get(config.RequestID),
+			err.Error(),
+		)
+		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
+
+	res := &DeleteActionsRes{
+		Message: "delete success",
+	}
+
+	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
 }
