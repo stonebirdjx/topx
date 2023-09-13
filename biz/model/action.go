@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/stonebirdjx/topx/biz/dal"
+	"github.com/stonebirdjx/topx/biz/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -39,19 +41,38 @@ type Action struct {
 func (a *Action) Validate(ctx context.Context) error {
 	if a.Name == "" {
 		err := fmt.Errorf("Action name can not be nil")
+		hlog.CtxErrorf(ctx, "%s action name err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
 		return err
 	}
 
 	if a.Name != url.QueryEscape(a.Name) {
-		return fmt.Errorf("Action name can not url special characters")
+		err := fmt.Errorf("Action name can not url special characters")
+		hlog.CtxErrorf(ctx, "%s action name err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
+		return err
 	}
 
 	if a.ServiceName == "" {
-		return fmt.Errorf("Action service name can not be nil")
+		err := fmt.Errorf("action service name can not be nil")
+		hlog.CtxErrorf(ctx, "%s action service name err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
+		return err
 	}
 
 	if a.ServiceName != url.QueryEscape(a.ServiceName) {
-		return fmt.Errorf("Action service name can not url special characters")
+		err := fmt.Errorf("Action service name can not url special characters")
+		hlog.CtxErrorf(ctx, "%s action service name err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
+		return err
 	}
 
 	if a.Version == "" {
