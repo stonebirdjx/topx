@@ -10,6 +10,7 @@ import (
 	"github.com/stonebirdjx/topx/biz/config"
 	"github.com/stonebirdjx/topx/biz/dal"
 	"github.com/stonebirdjx/topx/biz/middleware"
+	"github.com/stonebirdjx/topx/biz/util"
 	"golang.org/x/time/rate"
 )
 
@@ -21,6 +22,14 @@ func Init() error {
 
 	ctx := context.Background()
 	middleware.NewLimiter(ctx, middleware.LimiterOption{R: rate.Limit(g.RateLimit), B: g.Burst})
+
+	if err := util.ProxyClientHTTPInit(); err != nil {
+		return err
+	}
+
+	if err := util.ProxyClientHTTPSInit(); err != nil {
+		return err
+	}
 
 	if err := dal.MongoInit(ctx, dal.MongoOption{URI: g.MongoDBURI, DB: g.MongoDBDB}); err != nil {
 		return err
