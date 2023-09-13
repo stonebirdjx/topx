@@ -21,6 +21,7 @@ func customizedRegister(r *server.Hertz) {
 	// middleware
 	r.Use(
 		requestid.New(),
+		middleware.SetLogID,
 		middleware.AccessLog,
 		middleware.RetaLimit,
 	)

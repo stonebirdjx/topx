@@ -9,3 +9,5 @@ const (
 	defaultRetaLimit float64 = 5
 	defaultBurst     int     = 5
 )
+
+type Key string
