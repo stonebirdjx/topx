@@ -11,6 +11,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+type Scheme string
+
+func (s Scheme) validate() error {
+	switch s {
+	case "https", "http":
+		return nil
+	default:
+	}
+	return fmt.Errorf("%s illegal scheme", s)
+}
+
 type Action struct {
 	ID          primitive.ObjectID `bson:"_id" json:"id"`
 	Name        string             `json:"name" bson:"name"`
@@ -19,14 +30,16 @@ type Action struct {
 	RateLimit   float64            `json:"rate_limit" bson:"rate_limit"`
 	IsAuth      bool               `json:"is_auth" bson:"is_auth"`
 	Path        string             `json:"path" bson:"path"`
-	Proxy       string             `json:"proxy" bson:"proxy"`
+	Host        string             `json:"host" bson:"host"`
+	Scheme      Scheme             `json:"scheme" bson:"scheme"`
 	Timeout     int                `json:"timeout" bson:"timeout"`
 	Version     string             `json:"version" bson:"version"`
 }
 
-func (a *Action) Validate() error {
+func (a *Action) Validate(ctx context.Context) error {
 	if a.Name == "" {
-		return fmt.Errorf("Action name can not be nil")
+		err := fmt.Errorf("Action name can not be nil")
+		return err
 	}
 
 	if a.Name != url.QueryEscape(a.Name) {
@@ -47,6 +60,10 @@ func (a *Action) Validate() error {
 
 	if a.Version != url.QueryEscape(a.Version) {
 		return fmt.Errorf("Action version can not url special characters")
+	}
+
+	if err := a.Scheme.validate(); err != nil {
+		return err
 	}
 
 	if a.RateLimit < 1 {

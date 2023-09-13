@@ -95,13 +95,13 @@ type CreateActionsRes struct {
 	Message string `json:"message"`
 }
 
-func (c *CreateActionsReq) validate() error {
+func (c *CreateActionsReq) validate(ctx context.Context) error {
 	if len(c.Actions) == 0 {
 		return fmt.Errorf("create api actions can not be nil")
 	}
 
 	for _, action := range c.Actions {
-		if err := action.Validate(); err != nil {
+		if err := action.Validate(ctx); err != nil {
 			return err
 		}
 	}
@@ -125,7 +125,7 @@ func CreateActions(ctx context.Context, c *app.RequestContext) {
 		req,
 	)
 
-	if err := req.validate(); err != nil {
+	if err := req.validate(ctx); err != nil {
 		hlog.CtxErrorf(ctx, "%s CreateActions request body check err=%s",
 			c.Response.Header.Get(config.RequestID),
 			err.Error(),
@@ -245,8 +245,8 @@ type UpdateActionReq struct {
 	model.Action
 }
 
-func (u *UpdateActionReq) validate() error {
-	return u.Action.Validate()
+func (u *UpdateActionReq) validate(ctx context.Context) error {
+	return u.Action.Validate(ctx)
 }
 
 type UpdateActionRes struct {
@@ -278,7 +278,7 @@ func UpdateAction(ctx context.Context, c *app.RequestContext) {
 
 	req.ID = id
 
-	if err := req.validate(); err != nil {
+	if err := req.validate(ctx); err != nil {
 		hlog.CtxErrorf(ctx, "%s UpdateAction update mongo err=%s",
 			c.Response.Header.Get(config.RequestID),
 			err.Error(),

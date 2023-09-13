@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"testing"
 )
 
@@ -9,7 +10,7 @@ func TestReflect(t *testing.T) {
 		Name: "CreteAlgo",
 	}
 
-	a.Validate()
+	a.Validate(context.Background())
 }
 
 func TestObjectID(t *testing.T) {
