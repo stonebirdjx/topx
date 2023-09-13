@@ -176,7 +176,7 @@ func DeleteActions(ctx context.Context, c *app.RequestContext) {
 	req := &DeleteActionsReq{}
 	if err := c.BindAndValidate(req); err != nil {
 		hlog.CtxErrorf(ctx, "%s DeleteActions BindAndValidate request err=%s",
-			c.Response.Header.Get(config.RequestID),
+			util.GetLogID(ctx),
 			err.Error(),
 		)
 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
@@ -185,7 +185,7 @@ func DeleteActions(ctx context.Context, c *app.RequestContext) {
 
 	if err := model.DeleteByIDs(ctx, req.IDs); err != nil {
 		hlog.CtxErrorf(ctx, "%s DeleteActions delte mongo err=%s",
-			c.Response.Header.Get(config.RequestID),
+			util.GetLogID(ctx),
 			err.Error(),
 		)
 		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})

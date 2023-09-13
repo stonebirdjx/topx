@@ -76,14 +76,28 @@ func (a *Action) Validate(ctx context.Context) error {
 	}
 
 	if a.Version == "" {
-		return fmt.Errorf("Action version can not be nil")
+		err := fmt.Errorf("Action version can not be nil")
+		hlog.CtxErrorf(ctx, "%s action version err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
+		return err
 	}
 
 	if a.Version != url.QueryEscape(a.Version) {
-		return fmt.Errorf("Action version can not url special characters")
+		err := fmt.Errorf("Action version can not url special characters")
+		hlog.CtxErrorf(ctx, "%s action version err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
+		return err
 	}
 
 	if err := a.Scheme.validate(); err != nil {
+		hlog.CtxErrorf(ctx, "%s action scheme err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
 		return err
 	}
 
@@ -154,10 +168,18 @@ func listAction(ctx context.Context) (*[]Action, int, error) {
 	filter := bson.M{}
 	cursor, err := dal.TopCol.Find(ctx, filter)
 	if err != nil {
+		hlog.CtxErrorf(ctx, "%s topcol find err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
 		return nil, 0, err
 	}
 
 	if err := cursor.All(ctx, actions); err != nil {
+		hlog.CtxErrorf(ctx, "%s cursor actions err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
 		return nil, 0, err
 	}
 
@@ -168,6 +190,10 @@ func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, int, error
 	filter := bson.M{}
 	count, err := dal.TopCol.CountDocuments(ctx, filter)
 	if err != nil {
+		hlog.CtxErrorf(ctx, "%s topcol count documents err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
 		return nil, 0, err
 	}
 
@@ -179,11 +205,19 @@ func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, int, error
 
 	cursor, err := dal.TopCol.Find(ctx, filter, findOpt)
 	if err != nil {
+		hlog.CtxErrorf(ctx, "%s topcol find err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
 		return nil, 0, err
 	}
 
 	actions := &[]Action{}
 	if err := cursor.All(ctx, actions); err != nil {
+		hlog.CtxErrorf(ctx, "%s cursor actions err=%s",
+			util.GetLogID(ctx),
+			err.Error(),
+		)
 		return nil, 0, err
 	}
 
