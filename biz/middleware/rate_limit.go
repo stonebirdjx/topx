@@ -6,7 +6,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/stonebirdjx/topx/biz/util"
+	"github.com/stonebirdjx/topx/biz/utils"
 	"golang.org/x/time/rate"
 )
 
@@ -26,7 +26,7 @@ func RetaLimit(ctx context.Context, c *app.RequestContext) {
 	total := limiter.Limit()
 	tokens := limiter.Tokens()
 	hlog.CtxTracef(ctx, "%s total_rate=%fQPS, now sytem_rate=%fQPS",
-		util.GetLogID(ctx),
+		utils.GetLogID(ctx),
 		total,
 		total-rate.Limit(tokens),
 	)

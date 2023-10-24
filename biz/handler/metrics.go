@@ -7,7 +7,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/stonebirdjx/topx/biz/util"
+	"github.com/stonebirdjx/topx/biz/utils"
 )
 
 // Metrics .
@@ -16,7 +16,7 @@ func Metrics(ctx context.Context, c *app.RequestContext) {
 	req, err := adaptor.GetCompatRequest(&c.Request)
 	if err != nil {
 		hlog.CtxTracef(ctx, "%s hertz adaptor http request err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return

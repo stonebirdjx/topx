@@ -1,4 +1,8 @@
-package util
+// Copyright 2023 The Author stonebird. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package utils
 
 import (
 	"crypto/tls"
@@ -12,7 +16,7 @@ var (
 	HzHTTPSClient *client.Client
 )
 
-//ProxyClientHTTPInit.
+// ProxyClientHTTPInit.
 func ProxyClientHTTPInit() error {
 	c, err := client.NewClient()
 	if err != nil {
@@ -22,7 +26,6 @@ func ProxyClientHTTPInit() error {
 	return nil
 }
 
-//
 func ProxyClientHTTPSInit() error {
 	clientCfg := &tls.Config{
 		InsecureSkipVerify: true,

@@ -1,6 +1,6 @@
 module github.com/stonebirdjx/topx
 
-go 1.18
+go 1.21
 
 require (
 	github.com/cloudwego/hertz v0.6.8

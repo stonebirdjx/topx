@@ -9,7 +9,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/stonebirdjx/topx/biz/config"
 	"github.com/stonebirdjx/topx/biz/model"
-	"github.com/stonebirdjx/topx/biz/util"
+	"github.com/stonebirdjx/topx/biz/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -100,7 +100,7 @@ func (c *CreateActionsReq) validate(ctx context.Context) error {
 	if len(c.Actions) == 0 {
 		err := fmt.Errorf("create api actions can not be nil")
 		hlog.CtxErrorf(ctx, "%s action len is zero, err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return err
@@ -109,7 +109,7 @@ func (c *CreateActionsReq) validate(ctx context.Context) error {
 	for _, action := range c.Actions {
 		if err := action.Validate(ctx); err != nil {
 			hlog.CtxErrorf(ctx, "%s action validate args err=%s",
-				util.GetLogID(ctx),
+				utils.GetLogID(ctx),
 				err.Error(),
 			)
 			return err
@@ -123,7 +123,7 @@ func CreateActions(ctx context.Context, c *app.RequestContext) {
 	req := &CreateActionsReq{}
 	if err := c.BindAndValidate(req); err != nil {
 		hlog.CtxErrorf(ctx, "%s CreateActions BindAndValidate request err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
@@ -131,13 +131,13 @@ func CreateActions(ctx context.Context, c *app.RequestContext) {
 	}
 
 	hlog.CtxTracef(ctx, "%s CreateActions request info=%+v",
-		util.GetLogID(ctx),
+		utils.GetLogID(ctx),
 		req,
 	)
 
 	if err := req.validate(ctx); err != nil {
 		hlog.CtxErrorf(ctx, "%s CreateActions request body check err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
@@ -147,7 +147,7 @@ func CreateActions(ctx context.Context, c *app.RequestContext) {
 	for idx, action := range req.Actions {
 		if err := action.InsertOne(ctx); err != nil {
 			hlog.CtxErrorf(ctx, "%s CreateActions Error writing to database element index=%d err=%s",
-				util.GetLogID(ctx),
+				utils.GetLogID(ctx),
 				idx,
 				err.Error(),
 			)
@@ -176,7 +176,7 @@ func DeleteActions(ctx context.Context, c *app.RequestContext) {
 	req := &DeleteActionsReq{}
 	if err := c.BindAndValidate(req); err != nil {
 		hlog.CtxErrorf(ctx, "%s DeleteActions BindAndValidate request err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
@@ -185,7 +185,7 @@ func DeleteActions(ctx context.Context, c *app.RequestContext) {
 
 	if err := model.DeleteByIDs(ctx, req.IDs); err != nil {
 		hlog.CtxErrorf(ctx, "%s DeleteActions delte mongo err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})

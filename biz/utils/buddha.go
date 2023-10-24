@@ -1,4 +1,8 @@
-package config
+// Copyright 2023 The Author stonebird. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package utils
 
 var buddha = `
                    _ooOoo_
@@ -24,10 +28,12 @@ Buddha bless stonebirdjx programs never bugs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 `
 
-func ProgramBless() string {
+// BlessProgram bless programs neves bugs.
+func BlessProgram() string {
 	return buddha
 }
 
+// Thankyou thanks for Buddha bless.
 func Thankyou() string {
 	return "Thanks for Buddha bless"
 }

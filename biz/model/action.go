@@ -7,7 +7,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/stonebirdjx/topx/biz/dal"
-	"github.com/stonebirdjx/topx/biz/util"
+	"github.com/stonebirdjx/topx/biz/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -42,7 +42,7 @@ func (a *Action) Validate(ctx context.Context) error {
 	if a.Name == "" {
 		err := fmt.Errorf("Action name can not be nil")
 		hlog.CtxErrorf(ctx, "%s action name err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return err
@@ -51,7 +51,7 @@ func (a *Action) Validate(ctx context.Context) error {
 	if a.Name != url.QueryEscape(a.Name) {
 		err := fmt.Errorf("Action name can not url special characters")
 		hlog.CtxErrorf(ctx, "%s action name err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return err
@@ -60,7 +60,7 @@ func (a *Action) Validate(ctx context.Context) error {
 	if a.ServiceName == "" {
 		err := fmt.Errorf("action service name can not be nil")
 		hlog.CtxErrorf(ctx, "%s action service name err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return err
@@ -69,7 +69,7 @@ func (a *Action) Validate(ctx context.Context) error {
 	if a.ServiceName != url.QueryEscape(a.ServiceName) {
 		err := fmt.Errorf("Action service name can not url special characters")
 		hlog.CtxErrorf(ctx, "%s action service name err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return err
@@ -78,7 +78,7 @@ func (a *Action) Validate(ctx context.Context) error {
 	if a.Version == "" {
 		err := fmt.Errorf("Action version can not be nil")
 		hlog.CtxErrorf(ctx, "%s action version err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return err
@@ -87,7 +87,7 @@ func (a *Action) Validate(ctx context.Context) error {
 	if a.Version != url.QueryEscape(a.Version) {
 		err := fmt.Errorf("Action version can not url special characters")
 		hlog.CtxErrorf(ctx, "%s action version err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return err
@@ -95,7 +95,7 @@ func (a *Action) Validate(ctx context.Context) error {
 
 	if err := a.Scheme.validate(); err != nil {
 		hlog.CtxErrorf(ctx, "%s action scheme err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return err
@@ -169,7 +169,7 @@ func listAction(ctx context.Context) (*[]Action, int, error) {
 	cursor, err := dal.TopCol.Find(ctx, filter)
 	if err != nil {
 		hlog.CtxErrorf(ctx, "%s topcol find err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return nil, 0, err
@@ -177,7 +177,7 @@ func listAction(ctx context.Context) (*[]Action, int, error) {
 
 	if err := cursor.All(ctx, actions); err != nil {
 		hlog.CtxErrorf(ctx, "%s cursor actions err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return nil, 0, err
@@ -191,7 +191,7 @@ func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, int, error
 	count, err := dal.TopCol.CountDocuments(ctx, filter)
 	if err != nil {
 		hlog.CtxErrorf(ctx, "%s topcol count documents err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return nil, 0, err
@@ -206,7 +206,7 @@ func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, int, error
 	cursor, err := dal.TopCol.Find(ctx, filter, findOpt)
 	if err != nil {
 		hlog.CtxErrorf(ctx, "%s topcol find err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return nil, 0, err
@@ -215,7 +215,7 @@ func listActionLimit(ctx context.Context, opt ListOption) (*[]Action, int, error
 	actions := &[]Action{}
 	if err := cursor.All(ctx, actions); err != nil {
 		hlog.CtxErrorf(ctx, "%s cursor actions err=%s",
-			util.GetLogID(ctx),
+			utils.GetLogID(ctx),
 			err.Error(),
 		)
 		return nil, 0, err

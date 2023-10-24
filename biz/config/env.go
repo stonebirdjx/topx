@@ -59,3 +59,13 @@ func (g *Global) Validate() error {
 
 	return nil
 }
+
+type EnvPart struct{}
+
+func (e *EnvPart) Read() error {
+	return nil
+}
+
+func (e *EnvPart) Validate() error {
+	return nil
+}
