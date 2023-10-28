@@ -8,6 +8,7 @@ X代表扩展性和卓越性能，这是一个多用途的网关项目
 - 统一Request-Id: X-Request-Id。
 - 系统限制QPS和接口限制QPS：Reta limit。
 - 可观测性：Trace、Metrics、Logs。
+- 可测试：interface mock设计且代码高覆盖率。
 - SDK接入: topx-go-sdk。
 
 # 参考
