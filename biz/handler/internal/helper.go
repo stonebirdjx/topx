@@ -11,26 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package internal
 
-import (
-	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/stonebirdjx/topx/biz/handler"
-	"github.com/stonebirdjx/topx/biz/utils"
-)
-
-func main() {
-	hlog.Infof(utils.BlessProgram())
-	if err := handler.InitHelper(); err != nil {
-		panic(err.Error())
-	}
-
-	// hertz
-	h := server.Default(server.WithHostPorts(":6789"))
-
-	register(h)
-	h.Spin()
-
-	// hlog.Infof(config.Thankyou())
+func InitHelper() error {
+	return nil
 }
