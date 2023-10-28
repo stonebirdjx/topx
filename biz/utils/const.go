@@ -11,6 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package internal Save some status during system initialization
-// only for handler paclage use.
-package internal
+package utils
+const (
+	RequestID = "X-Request-Id"
+	LogID     = "Log-Id"
+)
+
+type LogKey string

@@ -20,17 +20,16 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/stonebirdjx/topx/biz/config"
 	"github.com/stonebirdjx/topx/biz/utils"
 	"golang.org/x/time/rate"
 )
 
-func SetLogID(ctx context.Context, c *app.RequestContext) {
-	logCtx := context.WithValue(ctx, config.Key(config.LogID), c.Response.Header.Get(config.RequestID))
+func (ctrl *Controller) SetLogID(ctx context.Context, c *app.RequestContext) {
+	logCtx := context.WithValue(ctx, utils.LogKey(utils.LogID), c.Response.Header.Get(utils.RequestID))
 	c.Next(logCtx)
 }
 
-func AccessLog(ctx context.Context, c *app.RequestContext) {
+func (ctrl *Controller) AccessLog(ctx context.Context, c *app.RequestContext) {
 	start := time.Now()
 	c.Next(ctx)
 	latency := time.Since(start).Milliseconds()
@@ -45,28 +44,17 @@ func AccessLog(ctx context.Context, c *app.RequestContext) {
 	)
 }
 
-var limiter *rate.Limiter
-
-type LimiterOption struct {
-	R rate.Limit
-	B int
-}
-
-func NewLimiter(ctx context.Context, l LimiterOption) {
-	limiter = rate.NewLimiter(l.R, l.B)
-}
-
 // RetaLimit 全局速率中间件.
-func RetaLimit(ctx context.Context, c *app.RequestContext) {
-	total := limiter.Limit()
-	tokens := limiter.Tokens()
+func (ctrl *Controller) RetaLimit(ctx context.Context, c *app.RequestContext) {
+	total := ctrl.limiter.Limit()
+	tokens := ctrl.limiter.Tokens()
 	hlog.CtxTracef(ctx, "%s total_rate=%fQPS, now sytem_rate=%fQPS",
 		utils.GetLogID(ctx),
 		total,
 		total-rate.Limit(tokens),
 	)
 
-	if !limiter.Allow() {
+	if !ctrl.limiter.Allow() {
 		// 429 StatusTooManyRequests.
 		c.AbortWithMsg("Request rate limit", consts.StatusTooManyRequests)
 	}

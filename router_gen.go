@@ -15,13 +15,14 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+	handler "github.com/stonebirdjx/topx/biz/handler"
 	router "github.com/stonebirdjx/topx/biz/router"
 )
 
 // register registers all routers.
-func register(r *server.Hertz) {
+func register(ctrl *handler.Controller, r *server.Hertz) {
 
 	router.GeneratedRegister(r)
 
-	customizedRegister(r)
+	customizedRegister(ctrl, r)
 }

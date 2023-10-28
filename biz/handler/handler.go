@@ -18,10 +18,25 @@ package handler
 import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
-	"github.com/stonebirdjx/topx/biz/handler/internal"
+	"github.com/stonebirdjx/topx/biz/config"
+	"golang.org/x/time/rate"
 )
 
-var InitHelper = internal.InitHelper
+type Controller struct {
+	limiter *rate.Limiter
+}
+
+func NewController() (*Controller, error) {
+	cfg, err := config.InitConfiger()
+	if err != nil {
+		return nil, err
+	}
+
+	limiter := rate.NewLimiter(rate.Limit(cfg.GetRateLimte()), cfg.GetBurst())
+	return &Controller{
+		limiter: limiter,
+	}, nil
+}
 
 type errOption struct {
 	statusCode int

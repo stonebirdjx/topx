@@ -16,21 +16,21 @@ package main
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/stonebirdjx/topx/biz/handler"
+	handler "github.com/stonebirdjx/topx/biz/handler"
 	"github.com/stonebirdjx/topx/biz/utils"
 )
 
 func main() {
 	hlog.Infof(utils.BlessProgram())
-	if err := handler.InitHelper(); err != nil {
-		panic(err.Error())
+
+	ctrl, err := handler.NewController()
+	if err != nil {
+		hlog.Fatalf(`new controller failed err="%s"`, err.Error())
 	}
 
 	// hertz
 	h := server.Default(server.WithHostPorts(":6789"))
-
-	register(h)
+	register(ctrl, h)
 	h.Spin()
-
-	// hlog.Infof(config.Thankyou())
+	// hlog.Infof(utils.Thankyou())
 }

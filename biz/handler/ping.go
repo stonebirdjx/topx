@@ -24,6 +24,13 @@ import (
 )
 
 // Ping .
+func (ctrl *Controller) Ping(ctx context.Context, c *app.RequestContext) {
+	c.JSON(consts.StatusOK, utils.H{
+		"message": "pong",
+	})
+}
+
+// Ping .
 func Ping(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, utils.H{
 		"message": "pong",

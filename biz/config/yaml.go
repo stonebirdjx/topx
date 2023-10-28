@@ -11,15 +11,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package config
 
-type YamlPart struct{}
+type Yaml struct{}
 
-func (y *YamlPart) Read() error {
-	return nil
+func (y *Yaml) GetMongDBURI() string {
+	return ""
 }
 
-func (y *YamlPart) Validate() error {
-	return nil
+func (y *Yaml) GetMongDBName() string {
+	return ""
+}
+
+func (y *Yaml) GetRedisURI() string {
+	return ""
+}
+
+func (y *Yaml) GetRateLimte() float64 {
+	return 0
+}
+
+func (y *Yaml) GetBurst() int {
+	return 0
+}
+
+// initYamlConfiger init configer by yaml
+func initYamlConfiger() (Configer, error) {
+	return &Yaml{}, nil
 }

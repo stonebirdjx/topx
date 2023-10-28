@@ -17,68 +17,93 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/stonebirdjx/topx/biz/utils"
 )
 
 // Env 预置环境变量.
 const (
-	MongoDBURIEnv = "MONGODB_URI"
-	MongoDBDBEnv  = "MONGODB_DB"
-	RateLimitEnv  = "RATE_LIMIT"
-	BurstEnv      = "BURST"
-	RedisURIEnv   = "REDIS_URI"
+	envMongoDBURI              = "MONGODB_URI"
+	envMongoDBName             = "MONGODB_DB"
+	envRateLimit               = "RATE_LIMIT"
+	envBurst                   = "BURST"
+	envRedisURI                = "REDIS_URI"
+	defaultMongoDBName         = "topx"
+	defaultRetaLimit   float64 = 5
+	defaultBurst       int     = 5
 )
 
-// Global 全局环境变量.
-type Global struct {
-	MongoDBURI string
-	MongoDBDB  string
-	RateLimit  float64
-	Burst      int
-	RedisURI   string
+type Env struct {
+	mongoDBURI  string
+	mongoDBName string
+	rateLimit   float64
+	burst       int
+	redisURI    string
 }
 
-func ReadFromEnv() *Global {
-	ratelimit, err := strconv.ParseFloat(os.Getenv(RateLimitEnv), 64)
+func (e *Env) validate() error {
+	if utils.IsEmptyString(e.mongoDBURI) {
+		return fmt.Errorf("env %s is empty", envMongoDBURI)
+	}
+
+	if utils.IsEmptyString(e.mongoDBName) {
+		return fmt.Errorf("env %s is empty", envMongoDBName)
+	}
+
+	if utils.IsEmptyString(e.redisURI) {
+		return fmt.Errorf("env %s is empty", envRedisURI)
+	}
+
+	return nil
+}
+
+func (e *Env) GetMongDBURI() string {
+	return e.mongoDBURI
+}
+
+func (e *Env) GetMongDBName() string {
+	return e.mongoDBName
+}
+
+func (e *Env) GetRedisURI() string {
+	return e.redisURI
+}
+
+func (e *Env) GetRateLimte() float64 {
+	return e.rateLimit
+}
+
+func (e *Env) GetBurst() int {
+	return e.burst
+}
+
+// readFromEnv Read configuration from environment variables.
+func readFromEnv() *Env {
+	ratelimit, err := strconv.ParseFloat(os.Getenv(envRateLimit), 64)
 	if err != nil {
 		ratelimit = defaultRetaLimit
 	}
 
-	burst, err := strconv.Atoi(os.Getenv(BurstEnv))
+	burst, err := strconv.Atoi(os.Getenv(envBurst))
 	if err != nil {
 		burst = defaultBurst
 	}
 
-	return &Global{
-		MongoDBURI: os.Getenv(MongoDBURIEnv),
-		MongoDBDB:  os.Getenv(MongoDBDBEnv),
-		RateLimit:  ratelimit,
-		Burst:      burst,
-		RedisURI:   os.Getenv(RedisURIEnv),
+	return &Env{
+		mongoDBURI:  os.Getenv(envMongoDBURI),
+		mongoDBName: os.Getenv(envMongoDBName),
+		rateLimit:   ratelimit,
+		burst:       burst,
+		redisURI:    os.Getenv(envRedisURI),
 	}
 }
 
-func (g *Global) Validate() error {
-	if g.MongoDBURI == "" {
-		return fmt.Errorf("env=%s value can not be nil,may be not set", MongoDBURIEnv)
+// initEnvConfiger init configer by env.
+func initEnvConfiger() (Configer, error) {
+	env := readFromEnv()
+	if err := env.validate(); err != nil {
+		return nil, err
 	}
 
-	if g.MongoDBDB == "" {
-		return fmt.Errorf("env=%s value can not be nil,may be not set", MongoDBDBEnv)
-	}
-
-	if g.RedisURI == "" {
-		return fmt.Errorf("env=%s value can not be nil,may be not set", RedisURIEnv)
-	}
-
-	return nil
-}
-
-type EnvPart struct{}
-
-func (e *EnvPart) Read() error {
-	return nil
-}
-
-func (e *EnvPart) Validate() error {
-	return nil
+	return env, nil
 }

@@ -16,8 +16,6 @@ package utils
 
 import (
 	"context"
-
-	"github.com/stonebirdjx/topx/biz/config"
 )
 
 const (
@@ -26,9 +24,14 @@ const (
 
 // GetLogID get the ctx Log-ID value.
 func GetLogID(ctx context.Context) string {
-	logid, ok := ctx.Value(config.Key(config.LogID)).(string)
+	logid, ok := ctx.Value(LogKey(LogID)).(string)
 	if !ok {
 		logid = sysLogid
 	}
 	return logid
+}
+
+// IsEmptyString .
+func IsEmptyString(s string) bool {
+	return s == ""
 }
