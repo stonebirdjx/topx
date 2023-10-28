@@ -3,10 +3,12 @@ X代表扩展性和卓越性能，这是一个多用途的网关项目
 
 # 技术点
 
-- request id: X-Request-Id
-- Reta limit
-- Metrics
-- Trance
+- 依赖注入: 减少对全局变量的依赖。
+- 符合软件设计七大原则：开闭原则、单一职责原则、里氏替换原则、依赖倒置原则、接口隔离原则、迪米特法则、合成复用原则。
+- 统一Request-Id: X-Request-Id。
+- 系统限制QPS和接口限制QPS：Reta limit。
+- 可观测性：Trace、Metrics、Logs。
+- SDK接入: topx-go-sdk。
 
 # 参考
 
