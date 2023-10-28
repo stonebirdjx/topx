@@ -11,32 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package dal
 
-// YamlImpl yaml
-type Yaml struct{}
+import "context"
 
-func (y *Yaml) GetMongDBURI() string {
-	return ""
-}
-
-func (y *Yaml) GetMongDBName() string {
-	return ""
-}
-
-func (y *Yaml) GetRedisURI() string {
-	return ""
-}
-
-func (y *Yaml) GetRateLimte() float64 {
-	return 0
-}
-
-func (y *Yaml) GetBurst() int {
-	return 0
-}
-
-// initYamlConfiger init configer by yaml
-func initYamlConfiger() (Configer, error) {
-	return &Yaml{}, nil
+func (b *Basic) CreateAction(ctx context.Context) error {
+	return nil
 }

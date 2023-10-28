@@ -28,7 +28,7 @@ const (
 	envRateLimit               = "RATE_LIMIT"
 	envBurst                   = "BURST"
 	envRedisURI                = "REDIS_URI"
-	defaultMongoDBName         = "topx"
+	defaultMongoDBName         = "stonebird"
 	defaultRetaLimit   float64 = 5
 	defaultBurst       int     = 5
 )
@@ -47,7 +47,7 @@ func (e *Env) validate() error {
 	}
 
 	if utils.IsEmptyString(e.mongoDBName) {
-		return fmt.Errorf("env %s is empty", envMongoDBName)
+		e.mongoDBName = defaultMongoDBName
 	}
 
 	if utils.IsEmptyString(e.redisURI) {

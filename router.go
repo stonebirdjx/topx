@@ -36,12 +36,11 @@ func customizedRegister(ctrl *handler.Controller, r *server.Hertz) {
 	)
 
 	r.GET("/ping", handler.Ping)
+	r.GET("/metrics", handler.Metrics)
 
-	// r.GET("/metrics", handler.Metrics)
-	// // your code ...
-
-	// appv1Register(r)
-	// proxyv1Register(r)
+	// your code ...
+	appv1Register(ctrl, r)
+	//proxyv1Register(ctrl, r)
 }
 
 // func proxyv1Register(r *server.Hertz) {
@@ -50,13 +49,13 @@ func customizedRegister(ctrl *handler.Controller, r *server.Hertz) {
 // 	g.Any("/:serviceName/:version/:actionName", handler.Porxy)
 // }
 
-// func appv1Register(r *server.Hertz) {
-// 	g := r.Group(appv1)
-// 	g.POST("/actions", handler.CreateActions)
-// 	g.GET("/actions", handler.ListActions)
-// 	g.DELETE("/actions", handler.DeleteActions)
-// 	g.GET("/actions/:actionid", handler.GetAction)
-// 	g.PATCH("/actions/:actionid", handler.UpdateAction)
-// 	g.PUT("/actions/:actionid", handler.UpdateAction)
-// 	g.DELETE("/actions/:actionid", handler.DeleteAction)
-// }
+func appv1Register(ctrl *handler.Controller, r *server.Hertz) {
+	g := r.Group(appv1)
+	g.POST("/actions", ctrl.CreateAction)
+	// g.GET("/actions", handler.ListActions)
+	// g.DELETE("/actions", handler.DeleteActions)
+	// g.GET("/actions/:actionid", handler.GetAction)
+	// g.PATCH("/actions/:actionid", handler.UpdateAction)
+	// g.PUT("/actions/:actionid", handler.UpdateAction)
+	// g.DELETE("/actions/:actionid", handler.DeleteAction)
+}

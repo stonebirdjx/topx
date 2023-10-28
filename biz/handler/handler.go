@@ -19,10 +19,14 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/stonebirdjx/topx/biz/config"
+	"github.com/stonebirdjx/topx/biz/dal"
 	"golang.org/x/time/rate"
 )
 
+// Controller app global variable controller.
+// Dependency injection instead of global variables
 type Controller struct {
+	daler   dal.Daler
 	limiter *rate.Limiter
 }
 
@@ -32,9 +36,15 @@ func NewController() (*Controller, error) {
 		return nil, err
 	}
 
+	daler, err := dal.NewDaler(dal.DalerOption{})
+	if err != nil {
+		return nil, err
+	}
+
 	limiter := rate.NewLimiter(rate.Limit(cfg.GetRateLimte()), cfg.GetBurst())
 	return &Controller{
 		limiter: limiter,
+		daler:   daler,
 	}, nil
 }
 

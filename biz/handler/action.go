@@ -13,6 +13,17 @@
 
 package handler
 
+import (
+	"context"
+
+	"github.com/cloudwego/hertz/pkg/app"
+)
+
+// CreateAction create new action request.
+func (ctrl *Controller) CreateAction(ctx context.Context, c *app.RequestContext) {
+	
+}
+
 // import (
 // 	"context"
 // 	"fmt"
