@@ -18,7 +18,11 @@ mockgen -source=./biz/config/config.go -destination=./biz/mock/config.go -packag
 mockgen -source=./biz/dal/dal.go -destination=./biz/mock/dal.go -package=mock
 ```
 
-# 参考
+# 简单设计图
+
+![](./resource/images/topx.drawio.png)
+
+# 依赖
 
 - MongoDB
 
@@ -33,5 +37,5 @@ mockgen -source=./biz/dal/dal.go -destination=./biz/mock/dal.go -package=mock
   # redis://<user>:<pass>@localhost:6379/<db>
   nerdctl run --name stonebird-redis -d --restart=always -e REDIS_ARGS="--requirepass ${password}" -p 6379:6379 -p 8001:8001 redis:7.2.0
   ```
-
   
+- opentelemetry
