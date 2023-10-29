@@ -11,6 +11,13 @@ X代表扩展性和卓越性能，这是一个多用途的网关项目
 - 可测试：interface mock设计且代码高覆盖率。
 - SDK接入: topx-go-sdk。
 
+# mockgen
+
+```bash
+mockgen -source=./biz/config/config.go -destination=./biz/mock/config.go -package=mock
+mockgen -source=./biz/dal/dal.go -destination=./biz/mock/dal.go -package=mock
+```
+
 # 参考
 
 - MongoDB

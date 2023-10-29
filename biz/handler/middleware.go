@@ -48,7 +48,7 @@ func (ctrl *Controller) AccessLog(ctx context.Context, c *app.RequestContext) {
 func (ctrl *Controller) RetaLimit(ctx context.Context, c *app.RequestContext) {
 	total := ctrl.limiter.Limit()
 	tokens := ctrl.limiter.Tokens()
-	hlog.CtxTracef(ctx, "%s total_rate=%fQPS, now sytem_rate=%fQPS",
+	hlog.CtxTracef(ctx, "%s total_rate=%.3fQPS, now_system_rate=%.3fQPS",
 		utils.GetLogID(ctx),
 		total,
 		total-rate.Limit(tokens),

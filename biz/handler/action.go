@@ -15,353 +15,298 @@ package handler
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/stonebirdjx/topx/biz/dal"
+	"github.com/stonebirdjx/topx/biz/utils"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+const (
+	acitonID = "actionid"
+)
+
+type CreateActionRequest struct {
+	*dal.Action
+}
+
+type CreateActionResponse struct {
+	BaseMsg
+}
 
 // CreateAction create new action request.
 func (ctrl *Controller) CreateAction(ctx context.Context, c *app.RequestContext) {
-	
+	req := &CreateActionRequest{}
+	if err := c.BindAndValidate(req); err != nil {
+		hlog.CtxErrorf(ctx, `%s CreateActions BindAndValidate request parameters err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
+
+	hlog.CtxTracef(ctx, `%s CreateActions BindAndValidate request parameters="%v"`,
+		utils.GetLogID(ctx),
+		req.Action,
+	)
+
+	fmt.Printf("111%v", req.Action)
+	if err := req.Action.Validate(); err != nil {
+		hlog.CtxErrorf(ctx, `%s CreateActions Validate request parameters err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
+
+	fmt.Printf("daler %v", ctrl.daler)
+
+	if err := ctrl.daler.CreateAction(ctx, req.Action); err != nil {
+		hlog.CtxErrorf(ctx, `%s CreateActions Request daler failed err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
+
+	res := &CreateActionResponse{
+		BaseMsg: BaseMsg{
+			Message: "CreateActions create new action successfully",
+		},
+	}
+
+	sendOK(ctx, c, okOption{statusCode: consts.StatusOK, obj: res})
 }
 
-// import (
-// 	"context"
-// 	"fmt"
+type ListActionsRequest struct {
+	PapeSize int64 `query:"page_size"`
+	PageNum  int64 `query:"page_num"`
+}
 
-// 	"github.com/cloudwego/hertz/pkg/app"
-// 	"github.com/cloudwego/hertz/pkg/common/hlog"
-// 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-// 	"github.com/stonebirdjx/topx/biz/config"
-// 	"github.com/stonebirdjx/topx/biz/model"
-// 	"github.com/stonebirdjx/topx/biz/utils"
-// 	"go.mongodb.org/mongo-driver/bson/primitive"
-// 	"go.mongodb.org/mongo-driver/mongo"
-// )
+func (l *ListActionsRequest) validate() error {
+	switch {
+	case l.PapeSize < 0:
+		return fmt.Errorf("page_size value can not lt 0")
+	case l.PapeSize > 0:
+		if l.PageNum < 1 {
+			return fmt.Errorf("when page_size gt 0 page_num value can not lt 1")
+		}
+	}
+	return nil
+}
 
-// const (
-// 	acitonID = "actionid"
-// )
+type ListActionsResponse struct {
+	Actions *[]dal.Action `json:"actions"`
+	Totals  int           `json:"totals"`
+}
 
-// type ListActionsReq struct {
-// 	PapeSize int64 `query:"page_size"`
-// 	PageNum  int64 `query:"page_num"`
-// }
+// ListActions list some actions.
+func (ctrl *Controller) ListActions(ctx context.Context, c *app.RequestContext) {
+	req := &ListActionsRequest{}
+	if err := c.BindAndValidate(req); err != nil {
+		hlog.CtxErrorf(ctx, `%s ListActions BindAndValidate request parameters err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
 
-// func (l *ListActionsReq) validate() error {
-// 	switch {
-// 	case l.PapeSize < 0:
-// 		return fmt.Errorf("page_size value can not lt 0")
-// 	case l.PapeSize > 0:
-// 		if l.PageNum < 1 {
-// 			return fmt.Errorf("when page_size gt 0 page_num value can not lt 1")
-// 		}
-// 	}
+	if err := req.validate(); err != nil {
+		hlog.CtxErrorf(ctx, `%s ListActions validate request parameters err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
 
-// 	return nil
-// }
+	hlog.CtxTracef(ctx, `%s ListActions Request parameters="%#v"`, req)
 
-// type ListActionsRes struct {
-// 	Actions []model.Action `json:"actions"`
-// 	Totals  int            `json:"totals"`
-// }
+	actions, counter, err := ctrl.daler.ListActions(ctx, dal.ListActionOption{PapeSize: req.PapeSize, PageNum: req.PageNum})
+	if err != nil {
+		hlog.CtxErrorf(ctx, `%s ListActions request daler err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
 
-// // ListActions return all acitons.
-// func ListActions(ctx context.Context, c *app.RequestContext) {
-// 	req := &ListActionsReq{}
-// 	if err := c.BindAndValidate(req); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s ListActions BindAndValidate request err=%s",
-// 			c.Response.Header.Get(utils.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
-// 		return
-// 	}
+	res := &ListActionsResponse{
+		Actions: actions,
+		Totals:  counter,
+	}
 
-// 	hlog.CtxTracef(ctx, "%s ListActions request info=%+v",
-// 		c.Response.Header.Get(utils.RequestID),
-// 		req,
-// 	)
+	sendOK(ctx, c, okOption{statusCode: consts.StatusOK, obj: res})
+}
 
-// 	if err := req.validate(); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s ListActions request body check err=%s",
-// 			c.Response.Header.Get(utils.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
-// 		return
-// 	}
+type DeleteActionResponse struct {
+	BaseMsg
+}
 
-// 	actions, total, err := model.ListActions(ctx, model.ListOption{
-// 		PapeSize: req.PapeSize,
-// 		PageNum:  req.PageNum,
-// 	})
-// 	if err != nil {
-// 		hlog.CtxErrorf(ctx, "%s ListActions query mongo err=%s",
-// 			c.Response.Header.Get(utils.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
-// 		return
-// 	}
+// DeleteAction
+func (ctrl *Controller) DeleteAction(ctx context.Context, c *app.RequestContext) {
+	acitonID := c.Param(acitonID)
+	id, err := primitive.ObjectIDFromHex(acitonID)
+	if err != nil {
+		hlog.CtxErrorf(ctx, `%s DeleteAction get primitive objectid err="%s"`,
+			c.Response.Header.Get(utils.RequestID),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
 
-// 	res := &ListActionsRes{
-// 		Actions: *actions,
-// 		Totals:  total,
-// 	}
+	hlog.CtxTracef(ctx, `%s DeleteAction actionID="%s"`, id)
 
-// 	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
-// }
+	if err := ctrl.daler.DeleteActionByID(ctx, id); err != nil {
+		hlog.CtxErrorf(ctx, `%s DeleteAction delete action err="%s"`,
+			c.Response.Header.Get(utils.RequestID),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
 
-// type CreateActionsReq struct {
-// 	Actions []*model.Action `json:"actions"`
-// }
+	res := &DeleteActionResponse{
+		BaseMsg: BaseMsg{
+			Message: "delete action success",
+		},
+	}
 
-// type CreateActionsRes struct {
-// 	Message string `json:"message"`
-// }
+	sendOK(ctx, c, okOption{statusCode: consts.StatusOK, obj: res})
+}
 
-// func (c *CreateActionsReq) validate(ctx context.Context) error {
-// 	if len(c.Actions) == 0 {
-// 		err := fmt.Errorf("create api actions can not be nil")
-// 		hlog.CtxErrorf(ctx, "%s action len is zero, err=%s",
-// 			utils.GetLogID(ctx),
-// 			err.Error(),
-// 		)
-// 		return err
-// 	}
+type DeleteActionsRequest struct {
+	IDs []primitive.ObjectID `json:"ids"`
+}
 
-// 	for _, action := range c.Actions {
-// 		if err := action.Validate(ctx); err != nil {
-// 			hlog.CtxErrorf(ctx, "%s action validate args err=%s",
-// 				utils.GetLogID(ctx),
-// 				err.Error(),
-// 			)
-// 			return err
-// 		}
-// 	}
-// 	return nil
-// }
+type DeleteActionsResponse struct {
+	BaseMsg
+}
 
-// // CreateActions create some new acitons.
-// func CreateActions(ctx context.Context, c *app.RequestContext) {
-// 	req := &CreateActionsReq{}
-// 	if err := c.BindAndValidate(req); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s CreateActions BindAndValidate request err=%s",
-// 			utils.GetLogID(ctx),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
-// 		return
-// 	}
+// DeleteActions
+func (ctrl *Controller) DeleteActions(ctx context.Context, c *app.RequestContext) {
+	req := &DeleteActionsRequest{}
+	if err := c.BindAndValidate(req); err != nil {
+		hlog.CtxErrorf(ctx, `%s DeleteActions BindAndValidate request parameters err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		return
+	}
 
-// 	hlog.CtxTracef(ctx, "%s CreateActions request info=%+v",
-// 		utils.GetLogID(ctx),
-// 		req,
-// 	)
+	hlog.CtxTracef(ctx, `%s DeleteActions actionIDs="%+v"`, utils.GetLogID(ctx), req.IDs)
 
-// 	if err := req.validate(ctx); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s CreateActions request body check err=%s",
-// 			utils.GetLogID(ctx),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
-// 		return
-// 	}
+	if err := ctrl.daler.DeleteActions(ctx, req.IDs); err != nil {
+		hlog.CtxErrorf(ctx, `%s DeleteActions delete actions err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
 
-// 	for idx, action := range req.Actions {
-// 		if err := action.InsertOne(ctx); err != nil {
-// 			hlog.CtxErrorf(ctx, "%s CreateActions Error writing to database element index=%d err=%s",
-// 				utils.GetLogID(ctx),
-// 				idx,
-// 				err.Error(),
-// 			)
-// 			sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
-// 			return
-// 		}
-// 	}
+	res := &DeleteActionsResponse{
+		BaseMsg: BaseMsg{
+			Message: "delete action success",
+		},
+	}
 
-// 	res := &CreateActionsRes{
-// 		Message: "creat actions success",
-// 	}
+	sendOK(ctx, c, okOption{statusCode: consts.StatusOK, obj: res})
+}
 
-// 	sendOk(c, okOption{statusCode: consts.StatusCreated, obj: res})
-// }
+type GetActionResponse struct {
+	*dal.Action
+}
 
-// type DeleteActionsReq struct {
-// 	IDs []primitive.ObjectID `json:"ids"`
-// }
+// GetAction
+func (ctrl *Controller) GetAction(ctx context.Context, c *app.RequestContext) {
+	acitonID := c.Param(acitonID)
+	id, err := primitive.ObjectIDFromHex(acitonID)
+	if err != nil {
+		hlog.CtxErrorf(ctx, "%s GetAction get objectid err=%s",
+			c.Response.Header.Get(utils.RequestID),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
 
-// type DeleteActionsRes struct {
-// 	Message string `json:"message"`
-// }
+	action, err := ctrl.daler.FindActionByID(ctx, id)
+	if err != nil {
+		hlog.CtxErrorf(ctx, `%s GetAction find action err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusInternalServerError, err: err})
+		return
+	}
 
-// // DeleteActions .
-// func DeleteActions(ctx context.Context, c *app.RequestContext) {
-// 	req := &DeleteActionsReq{}
-// 	if err := c.BindAndValidate(req); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s DeleteActions BindAndValidate request err=%s",
-// 			utils.GetLogID(ctx),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
-// 		return
-// 	}
+	res := &GetActionResponse{
+		Action: action,
+	}
 
-// 	if err := model.DeleteByIDs(ctx, req.IDs); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s DeleteActions delte mongo err=%s",
-// 			utils.GetLogID(ctx),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
-// 		return
-// 	}
+	sendOK(ctx, c, okOption{statusCode: consts.StatusOK, obj: res})
+}
 
-// 	res := &DeleteActionsRes{
-// 		Message: "delete success",
-// 	}
+type UpdateActionRequest struct {
+	*dal.Action
+}
 
-// 	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
-// }
+type UpdateActionResponse struct {
+	BaseMsg
+}
 
-// type GetActionRes struct {
-// 	*model.Action
-// }
+// UpdateAction
+func (ctrl *Controller) UpdateAction(ctx context.Context, c *app.RequestContext) {
+	acitonID := c.Param(acitonID)
 
-// type GetActionResNoDocuments struct {
-// 	Message string `json:"message"`
-// }
+	id, err := primitive.ObjectIDFromHex(acitonID)
+	if err != nil {
+		hlog.CtxErrorf(ctx, "%s UpdateAction get objectid err=%s",
+			c.Response.Header.Get(utils.RequestID),
+			err.Error(),
+		)
+		sendError(ctx, c, errorOption{statusCode: consts.StatusBadRequest, err: err})
+		return
+	}
 
-// // GetAction return an acitons.
-// func GetAction(ctx context.Context, c *app.RequestContext) {
-// 	acitonID := c.Param(acitonID)
-// 	id, err := primitive.ObjectIDFromHex(acitonID)
-// 	if err != nil {
-// 		hlog.CtxErrorf(ctx, "%s GetAction get objectid err=%s",
-// 			c.Response.Header.Get(config.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
-// 		return
-// 	}
-// 	action := &model.Action{
-// 		ID: id,
-// 	}
+	req := &UpdateActionRequest{}
+	if err := c.BindAndValidate(req); err != nil {
+		hlog.CtxErrorf(ctx, `%s UpdateAction BindAndValidate request parameters err="%s"`,
+			utils.GetLogID(ctx),
+			err.Error(),
+		)
+		return
+	}
 
-// 	err = action.GetAction(ctx)
-// 	if err != nil {
-// 		getActionErrHandler(ctx, c, err)
-// 		return
-// 	}
-// 	res := GetActionRes{
-// 		Action: action,
-// 	}
+	// req validate
+	req.ID = id
 
-// 	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
-// }
+	if err := ctrl.daler.UpdateAction(ctx, req.Action); err != nil {
+		if err != nil {
+			hlog.CtxErrorf(ctx, `%s UpdateAction update action err="%s"`,
+				utils.GetLogID(ctx),
+				err.Error(),
+			)
+			sendError(ctx, c, errorOption{statusCode: consts.StatusInternalServerError, err: err})
+			return
+		}
+	}
 
-// func getActionErrHandler(ctx context.Context, c *app.RequestContext, err error) {
-// 	if err != mongo.ErrNoDocuments {
-// 		hlog.CtxErrorf(ctx, "%s GetAction query mongo err=%s",
-// 			c.Response.Header.Get(config.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
-// 		return
-// 	}
+	res := &UpdateActionResponse{
+		BaseMsg: BaseMsg{
+			Message: "update action success",
+		},
+	}
 
-// 	res := &GetActionResNoDocuments{
-// 		Message: "the action no document",
-// 	}
-// 	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
-// }
-
-// type UpdateActionReq struct {
-// 	model.Action
-// }
-
-// func (u *UpdateActionReq) validate(ctx context.Context) error {
-// 	return u.Action.Validate(ctx)
-// }
-
-// type UpdateActionRes struct {
-// 	Message string `json:"message"`
-// }
-
-// // UpdateAction update aciton information.
-// func UpdateAction(ctx context.Context, c *app.RequestContext) {
-// 	acitonID := c.Param(acitonID)
-// 	id, err := primitive.ObjectIDFromHex(acitonID)
-// 	if err != nil {
-// 		hlog.CtxErrorf(ctx, "%s UpdateAction get objectid err=%s",
-// 			c.Response.Header.Get(config.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
-// 		return
-// 	}
-
-// 	req := &UpdateActionReq{}
-// 	if err := c.BindAndValidate(req); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s UpdateAction BindAndValidate request err=%s",
-// 			c.Response.Header.Get(config.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
-// 		return
-// 	}
-
-// 	req.ID = id
-
-// 	if err := req.validate(ctx); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s UpdateAction update mongo err=%s",
-// 			c.Response.Header.Get(config.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
-// 		return
-// 	}
-
-// 	if err := req.Action.UpdateAction(ctx); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s UpdateAction update mongo err=%s",
-// 			c.Response.Header.Get(config.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
-// 		return
-// 	}
-
-// 	res := &UpdateActionRes{
-// 		Message: "update success",
-// 	}
-
-// 	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
-// }
-
-// // DeleteAction.
-// func DeleteAction(ctx context.Context, c *app.RequestContext) {
-// 	acitonID := c.Param(acitonID)
-// 	id, err := primitive.ObjectIDFromHex(acitonID)
-// 	if err != nil {
-// 		hlog.CtxErrorf(ctx, "%s DeleteAction get objectid err=%s",
-// 			c.Response.Header.Get(config.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusBadRequest, err: err})
-// 		return
-// 	}
-
-// 	if err := model.DeleteByID(ctx, id); err != nil {
-// 		hlog.CtxErrorf(ctx, "%s DeleteAction delete mongo err=%s",
-// 			c.Response.Header.Get(config.RequestID),
-// 			err.Error(),
-// 		)
-// 		sendError(c, errOption{statusCode: consts.StatusInternalServerError, err: err})
-// 		return
-// 	}
-
-// 	res := &DeleteActionsRes{
-// 		Message: "delete success",
-// 	}
-
-// 	sendOk(c, okOption{statusCode: consts.StatusOK, obj: res})
-// }
+	sendOK(ctx, c, okOption{statusCode: consts.StatusOK, obj: res})
+}

@@ -19,6 +19,7 @@ import (
 	"github.com/go-redis/redis_rate/v10"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -27,8 +28,26 @@ const (
 	topxColName = "topx"
 )
 
+type ListActionOption struct {
+	PapeSize int64
+	PageNum  int64
+}
+
+type FindActionOption struct {
+	ServiceName string
+	Version     string
+	ActionName  string
+}
+
 // Daler Collection of some database methods.
 type Daler interface {
+	FindActionByOpt(ctx context.Context, opt FindActionOption) (*Action, error)
+	UpdateAction(ctx context.Context, action *Action) error
+	FindActionByID(ctx context.Context, id primitive.ObjectID) (*Action, error)
+	DeleteActions(ctx context.Context, ids []primitive.ObjectID) error
+	DeleteActionByID(ctx context.Context, id primitive.ObjectID) error
+	ListActions(ctx context.Context, opt ListActionOption) (*[]Action, int, error)
+	CreateAction(ctx context.Context, action *Action) error
 	Allow(ctx context.Context, key string, limit redis_rate.Limit) (*redis_rate.Result, error)
 }
 
@@ -56,7 +75,7 @@ func NewDaler(opt DalerOption) (Daler, error) {
 
 	topxCol := basic.mongoClient.Database(opt.MongoDBName).Collection(topxColName)
 	basic.topxCol = topxCol
-	if basic.topColInit(context.Background()) != nil {
+	if err = basic.topColInit(context.Background()); err != nil {
 		return nil, err
 	}
 

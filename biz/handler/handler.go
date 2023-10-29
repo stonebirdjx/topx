@@ -16,10 +16,12 @@
 package handler
 
 import (
+	"context"
+
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/stonebirdjx/topx/biz/config"
 	"github.com/stonebirdjx/topx/biz/dal"
+	"github.com/stonebirdjx/topx/biz/utils"
 	"golang.org/x/time/rate"
 )
 
@@ -36,7 +38,13 @@ func NewController() (*Controller, error) {
 		return nil, err
 	}
 
-	daler, err := dal.NewDaler(dal.DalerOption{})
+	daler, err := dal.NewDaler(
+		dal.DalerOption{
+			MongoDBURI:  cfg.GetMongDBURI(),
+			MongoDBName: cfg.GetMongDBName(),
+			RedisURI:    cfg.GetRedisURI(),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -48,22 +56,59 @@ func NewController() (*Controller, error) {
 	}, nil
 }
 
-type errOption struct {
+type BaseMsg struct {
+	Message string `json:"message"`
+}
+
+type ResponseMetadata struct {
+	RequestID string `json:"request_id"`
+	Error     *Error `json:"error,omitempty"`
+}
+
+type Error struct {
+	Code int `json:"code"`
+	BaseMsg
+}
+
+type errorResponse struct {
+	ResponseMetadata ResponseMetadata `json:"metadata"`
+}
+
+type errorOption struct {
 	statusCode int
 	err        error
 }
 
-func sendError(c *app.RequestContext, opt errOption) {
-	c.JSON(opt.statusCode, utils.H{
-		"message": opt.err.Error(),
-	})
+func sendError(ctx context.Context, c *app.RequestContext, opt errorOption) {
+	res := &errorResponse{
+		ResponseMetadata: ResponseMetadata{
+			RequestID: utils.GetLogID(ctx),
+			Error: &Error{
+				Code: opt.statusCode,
+				BaseMsg: BaseMsg{
+					Message: opt.err.Error(),
+				},
+			},
+		},
+	}
+	c.JSON(opt.statusCode, res)
 }
 
+type okResponse struct {
+	ResponseMetadata ResponseMetadata `json:"metadata"`
+	Result           any              `json:"result"`
+}
 type okOption struct {
 	statusCode int
 	obj        any
 }
 
-func sendOk(c *app.RequestContext, opt okOption) {
-	c.JSON(opt.statusCode, opt.obj)
+func sendOK(ctx context.Context, c *app.RequestContext, opt okOption) {
+	res := &okResponse{
+		ResponseMetadata: ResponseMetadata{
+			RequestID: utils.GetLogID(ctx),
+		},
+		Result: opt.obj,
+	}
+	c.JSON(opt.statusCode, res)
 }

@@ -40,22 +40,22 @@ func customizedRegister(ctrl *handler.Controller, r *server.Hertz) {
 
 	// your code ...
 	appv1Register(ctrl, r)
-	//proxyv1Register(ctrl, r)
+	proxyv1Register(ctrl, r)
 }
 
-// func proxyv1Register(r *server.Hertz) {
-// 	g := r.Group(proxyv1)
-// 	//	http://ip:port/apis/proxy/v1/iva/2022-05-13/TestPing
-// 	g.Any("/:serviceName/:version/:actionName", handler.Porxy)
-// }
+func proxyv1Register(ctrl *handler.Controller, r *server.Hertz) {
+	g := r.Group(proxyv1)
+	//	http://ip:port/apis/proxy/v1/iva/2022-05-13/TestPing
+	g.Any("/:serviceName/:version/:actionName", ctrl.Porxy)
+}
 
 func appv1Register(ctrl *handler.Controller, r *server.Hertz) {
 	g := r.Group(appv1)
 	g.POST("/actions", ctrl.CreateAction)
-	// g.GET("/actions", handler.ListActions)
-	// g.DELETE("/actions", handler.DeleteActions)
-	// g.GET("/actions/:actionid", handler.GetAction)
-	// g.PATCH("/actions/:actionid", handler.UpdateAction)
-	// g.PUT("/actions/:actionid", handler.UpdateAction)
-	// g.DELETE("/actions/:actionid", handler.DeleteAction)
+	g.GET("/actions", ctrl.ListActions)
+	g.DELETE("/actions/:actionid", ctrl.DeleteAction)
+	g.DELETE("/actions", ctrl.DeleteActions)
+	g.GET("/actions/:actionid", ctrl.GetAction)
+	g.PATCH("/actions/:actionid", ctrl.UpdateAction)
+	g.PUT("/actions/:actionid", ctrl.UpdateAction)
 }
