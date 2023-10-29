@@ -228,7 +228,7 @@ type GetActionResponse struct {
 }
 
 // GetAction
-func (ctrl *Controller) GetAction(ctx context.Context, c *app.RequestContext) {
+func (ctrl *Controller) FindAction(ctx context.Context, c *app.RequestContext) {
 	acitonID := c.Param(acitonID)
 	id, err := primitive.ObjectIDFromHex(acitonID)
 	if err != nil {

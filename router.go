@@ -55,7 +55,7 @@ func appv1Register(ctrl *handler.Controller, r *server.Hertz) {
 	g.GET("/actions", ctrl.ListActions)
 	g.DELETE("/actions/:actionid", ctrl.DeleteAction)
 	g.DELETE("/actions", ctrl.DeleteActions)
-	g.GET("/actions/:actionid", ctrl.GetAction)
+	g.GET("/actions/:actionid", ctrl.FindAction)
 	g.PATCH("/actions/:actionid", ctrl.UpdateAction)
 	g.PUT("/actions/:actionid", ctrl.UpdateAction)
 }
